@@ -3,6 +3,7 @@
 org.joda.time.DateTime,
 org.ecocean.servlet.importer.ImportTask,
 org.ecocean.media.MediaAsset,
+org.ecocean.BreakPoint,
 javax.jdo.Query,
 org.json.JSONArray,
 java.util.Set,
@@ -148,6 +149,7 @@ public String dumpTask(Task task) {
 
 <%!
 public String getOverallStatus(Task task, Shepherd myShepherd, HashMap<String, Integer> idStatusMap, HttpServletRequest request){
+	BreakPoint.hit();
 	String status="unknown";
 	//resumeStalledTasks
 	boolean resumeStalledTasks = false;
@@ -452,6 +454,7 @@ try{
 	    int numMatchAgainst=0;
 	    boolean foundChildren = false;
 	    int numMatchTasks=0;
+		BreakPoint.hit();
 	
 	    HashMap<String,JSONArray> jarrs = new HashMap<String,JSONArray>();
 	    if (Util.collectionSize(itask.getEncounters()) > 0) {
@@ -895,6 +898,7 @@ try{
 	</p>
 	<div id="ia-send-div">
 	<% 
+	BreakPoint.hit();
 	if (allowIA) { 
 	%>
 	    
@@ -911,6 +915,7 @@ try{
 	 	<% 
 		    }
 	}
+	BreakPoint.hit();
 	if((request.isUserInRole("admin") || request.isUserInRole("researcher")) 
 			&& itask.getIATask()!=null 
 			&& itask.getStatus()!=null
