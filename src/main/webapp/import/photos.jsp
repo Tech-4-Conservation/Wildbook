@@ -1,5 +1,6 @@
 <%@ page contentType="text/html; charset=utf-8" language="java"
      import="org.ecocean.*,
+	 		  org.ecocean.BreakPoint,
               org.ecocean.servlet.ServletUtilities,
 			  org.ecocean.resumableupload.UploadServlet,
               java.util.ArrayList,
@@ -27,6 +28,7 @@ String subdir = UploadServlet.getSubdirForUpload(myShepherd, request);
 UploadServlet.setSubdirForUpload(subdir, request);
 
 boolean isImportExport = "true".equals(request.getParameter("isImportExport"));
+
 
 String checkSubdir = ServletUtilities.getSessionAttribute("subdir", request);
 System.out.println("I'm double checking the 'subdir' attribute: "+checkSubdir);
@@ -109,6 +111,21 @@ div.file-item div {
 
 </head>
 
+
+<%
+boolean adminMode = false;
+if (request.isUserInRole("admin")) adminMode = true;
+BreakPoint.hit();
+%>
+
+<% if (!adminMode && isImportExport) { %>
+    <h1 class="import-header">Access Denied</h1>
+    <%-- Optionally add a redirect after a few seconds:
+    response.setHeader("Refresh", "3; URL=" + request.getContextPath() + "/accessDenied.jsp");
+    --%>
+<% } else { %>
+
+
 <% if (isImportExport) { %>
     <h1 class="import-header">Import Export: Photo Upload</h1>
 <% } else { %>
@@ -139,6 +156,9 @@ div.file-item div {
 </div>
 
 </div> <!-- container maincontent -->
+
+<% } %>
+
 
 <jsp:include page="../footer.jsp" flush="true"/>
 
