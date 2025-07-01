@@ -1,6 +1,5 @@
 <%@ page contentType="text/html; charset=utf-8" language="java"
      import="org.ecocean.*,
-	 		  org.ecocean.BreakPoint,
               org.ecocean.servlet.ServletUtilities,
 			  org.ecocean.resumableupload.UploadServlet,
               java.util.ArrayList,
@@ -115,7 +114,6 @@ div.file-item div {
 <%
 boolean adminMode = false;
 if (request.isUserInRole("admin")) adminMode = true;
-BreakPoint.hit();
 %>
 
 <% if (!adminMode && isImportExport) { %>
