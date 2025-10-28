@@ -443,7 +443,7 @@
     "brunnea": {
       "_detect_conf": [
         {
-          "start_detect": "http://172.17.0.1:5001/api/engine/detect/cnn/lightnet/",
+          "start_detect": "http://172.17.0.1:5000/api/engine/detect/cnn/lightnet/",
           "labeler_algo": "densenet",
           "model_tag": "hyaena_v0",
           "model_tag_new": "brown_hyena_v0",
