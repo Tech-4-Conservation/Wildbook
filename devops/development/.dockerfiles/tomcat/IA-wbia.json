@@ -26,7 +26,7 @@
     "_note": "according to drew, these are not used and should be set within _confs below!",
     "add_images": "http://host.docker.internal:8000/image/json/",
     "add_annotations": "http://host.docker.internal:8000/annot/json/",  
-    "start_identify": "http://host.docker.internal:8000/engine/query/graph/",
+    "start_identify": "http://host.docker.internal:800/engine/query/graph/",
     "identify_review": "http://host.docker.internal:8000/review/query/graph/",
     "start_detect": "http://host.docker.internal:8000/engine/detect/cnn/lightnet/",
     "detect_review": "http://host.docker.internal:8000/review/detect/cnn/yolo/",
