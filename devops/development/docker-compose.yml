@@ -54,7 +54,7 @@ services:
       - intranet
     ports:
       - '81:8080'
-      - '8000:8000'
+      - '8001:8000'
     environment:
       DB_USER: '${WILDBOOK_DB_USER}'
       DB_PASSWORD: '${WILDBOOK_DB_PASSWORD}'
