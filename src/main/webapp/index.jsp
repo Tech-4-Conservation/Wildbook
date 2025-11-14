@@ -2,6 +2,7 @@
      import="org.ecocean.*,
               org.ecocean.servlet.ServletUtilities,
               java.util.ArrayList,
+              java.util.HashMap,
               java.util.List,
               java.util.Map,
               java.util.Iterator,
@@ -53,7 +54,7 @@ if (!CommonConfiguration.isWildbookInitialized(myShepherd)) {
 //let's quickly get the data we need from Shepherd
 
 int numMarkedIndividuals=0;
-int numEncounters=0;
+//int numEncounters=0;
 int numSightings=0;
 int numDataContributors=0;
 int numUsersWithRoles=0;
@@ -75,9 +76,9 @@ try{
     numMarkedIndividuals=qc.getQueryByName("numMarkedIndividuals").executeCountQuery(myShepherd).intValue();
     System.out.println("[PERF] index.jsp: numMarkedIndividuals query took " + (System.currentTimeMillis() - operationStartTime) + " ms");
     
-    operationStartTime = System.currentTimeMillis();
-    numEncounters=myShepherd.getNumEncounters();
-    System.out.println("[PERF] index.jsp: getNumEncounters() took " + (System.currentTimeMillis() - operationStartTime) + " ms");
+    //operationStartTime = System.currentTimeMillis();
+    //numEncounters=myShepherd.getNumEncounters();
+    //System.out.println("[PERF] index.jsp: getNumEncounters() took " + (System.currentTimeMillis() - operationStartTime) + " ms");
     
     operationStartTime = System.currentTimeMillis();
     numSightings=myShepherd.getNumOccurrences();
