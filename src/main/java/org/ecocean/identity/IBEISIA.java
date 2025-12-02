@@ -261,8 +261,10 @@ public class IBEISIA {
         if (qanns.size() > 0) {
             try {
                 Taxonomy taxy = qanns.get(0).getTaxonomy(myShepherd);
-                String architecture = IAJsonProperties.iaConfig().getDetectionConfig(taxy).getString("architecture");
-                u = IAJsonProperties.iaConfig().getJson().getJSONObject(architecture).getString("start_identify");
+                IAJsonProperties iaConfig = IAJsonProperties.iaConfig();
+                String architecture = iaConfig.getDetectionConfig(taxy).getString("architecture");
+                String envArchitecture = iaConfig.getArchitectureWithEnv(architecture);
+                u = iaConfig.getJson().getJSONObject(envArchitecture).getString("start_identify");
             } catch (Exception e) {
                 u = IA.getProperty(context, "IBEISIARestUrlStartIdentifyAnnotations");
             }
@@ -698,8 +700,10 @@ public class IBEISIA {
             String taskId = findTaskIDFromJobID(jobID, context);
             Task task = Task.load(taskId, myShepherd);
             JSONObject parameters = task.getParameters();
+            IAJsonProperties iaConfig = IAJsonProperties.iaConfig();
             String architecture = parameters.getJSONObject("detectArgs").getString("architecture");
-            u = IAJsonProperties.iaConfig().getJson().getJSONObject(architecture).getString("get_job_status");
+            String envArchitecture = iaConfig.getArchitectureWithEnv(architecture);
+            u = iaConfig.getJson().getJSONObject(envArchitecture).getString("get_job_status");
         } catch (Exception e) {
             u = IA.getProperty(context, "IBEISIARestUrlGetJobStatus");
         }
@@ -724,8 +728,10 @@ public class IBEISIA {
             String taskId = findTaskIDFromJobID(jobID, context);
             Task task = Task.load(taskId, myShepherd);
             JSONObject parameters = task.getParameters();
+            IAJsonProperties iaConfig = IAJsonProperties.iaConfig();
             String architecture = parameters.getJSONObject("detectArgs").getString("architecture");
-            u = IAJsonProperties.iaConfig().getJson().getJSONObject(architecture).getString("get_job_result");
+            String envArchitecture = iaConfig.getArchitectureWithEnv(architecture);
+            u = iaConfig.getJson().getJSONObject(envArchitecture).getString("get_job_result");
         } catch (Exception e) {
             u = IA.getProperty(context, "IBEISIARestUrlGetJobResult");
         }
@@ -4600,6 +4606,18 @@ public class IBEISIA {
     }
 
     public static String callbackUrl(String baseUrl) {
+        // For local development, allow overriding the callback URL
+        // This enables the API running locally to reach Wildbook running in Docker
+        String useOverride = System.getenv("USE_LOCAL_CALLBACK_URL");
+        if ("true".equalsIgnoreCase(useOverride)) {
+            String wildbookAppUrl = System.getenv("WILDBOOK_APP_URL");
+            if (wildbookAppUrl != null && !wildbookAppUrl.isEmpty()) {
+                System.out.println("Using local callback URL: " + wildbookAppUrl + "/ia?callback (instead of " + baseUrl + "/ia?callback)");
+                return wildbookAppUrl + "/ia?callback";
+            } else {
+                System.out.println("WARNING: USE_LOCAL_CALLBACK_URL is true but WILDBOOK_APP_URL is not set, using baseUrl");
+            }
+        }
         return baseUrl + "/ia?callback";
     }
 
