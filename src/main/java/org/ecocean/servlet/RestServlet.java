@@ -984,7 +984,7 @@ public class RestServlet extends HttpServlet {
             } else if (currentUser == null) {
                 canAccess = Collaboration.canCollaborate(context, owner, "public");
             } else {
-                canAccess = Collaboration.canCollaborate(context, currentUser, owner);
+                canAccess = Collaboration.canUserAccessOwnedObject(owner, req);
             }
 
             accessMap.put(owner, canAccess);
