@@ -238,6 +238,20 @@ public class RestClient {
     throws NoSuchAlgorithmException, InvalidKeyException {
         String appName = "IBEIS";
         String appSecret = "CB73808F-A6F6-094B-5FCD-385EBAFF8FC0";
+        
+        // For new_wbia architecture, fetch from environment variables
+        // Check if URL matches new_wbia patterns (staging/prod AWS URLs or local)
+        if (url != null && url.contains("execute-api.us-east-1.amazonaws.com")) {
+            String envAppName = System.getenv("WBIA_APP_NAME");
+            String envAppSecret = System.getenv("WBIA_APP_SECRET");
+            
+            if (envAppName != null && !envAppName.isEmpty()) {
+                appName = envAppName;
+            }
+            if (envAppSecret != null && !envAppSecret.isEmpty()) {
+                appSecret = envAppSecret;
+            }
+        }
 
         return appName + ":" + getSignature(appSecret, url.getBytes());
     }
