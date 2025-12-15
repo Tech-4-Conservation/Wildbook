@@ -469,6 +469,40 @@ public class Collaboration implements java.io.Serializable {
             return canCollaborate(context, ownerName, "public");
         }
         String username = request.getUserPrincipal().getName();
+        
+        // Check if requester is an OrgAdmin and shares an organization with the owner
+        if (request.isUserInRole("orgAdmin")) {
+            Shepherd myShepherd = new Shepherd(context);
+            myShepherd.setAction("Collaboration.canUserAccessOwnedObject");
+            myShepherd.beginDBTransaction();
+            boolean hasAccess = false;
+            try {
+                User owner = myShepherd.getUser(ownerName);
+                User requester = myShepherd.getUser(username);
+                if (owner != null && requester != null) {
+                    List<Organization> ownerOrgs = owner.getOrganizations();
+                    List<Organization> requesterOrgs = requester.getOrganizations();
+                    if (ownerOrgs != null && ownerOrgs.size() > 0 &&
+                        requesterOrgs != null && requesterOrgs.size() > 0) {
+                        for (Organization org : ownerOrgs) {
+                            if (requesterOrgs.contains(org)) {
+                                hasAccess = true; // They share an organization, grant access
+                                break;
+                            }
+                        }
+                    }
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            } finally {
+                myShepherd.rollbackDBTransaction();
+                myShepherd.closeDBTransaction();
+            }
+            if (hasAccess) {
+                return true;
+            }
+        }
+        
         // System.out.println("canUserAccessOwnedObject(String ownerName,
         // HttpServletRequest request)");
         return canCollaborate(context, username, ownerName);
