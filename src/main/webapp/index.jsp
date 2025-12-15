@@ -196,6 +196,18 @@ h2.vidcap {
 
 }
 
+/* Top Spotters header styling */
+.data-section h2.section-header {
+	color: #fff;
+	letter-spacing: 1.5pt;
+	text-align: center !important;
+	width: 100%;
+	display: block;
+}
+
+.data-section h2.section-header .header-subtitle {
+	font-size: 0.8em;
+}
 
 </style>
 
@@ -228,14 +240,6 @@ h2.vidcap {
     -->
 
 </section>
-
-<div class="container-fluid relative data-section">
-
-    <aside class="container main-section">
-        <!-- Empty row - Top Spotters moved to full-width section below -->
-        </div>
-    </aside>
-</div>
 
 <div class="container-fluid">
     <section class="container text-center  main-section">
@@ -276,15 +280,15 @@ h2.vidcap {
     </section>
 </div>
 
-<!-- Top Spotters (Past 30 Days) - Full Width Section -->
+<!-- Top Spotters (Past 90 Days) - Full Width Section -->
 <div class="container-fluid relative data-section">
     <section class="container main-section">
-        <h2 class="section-header text-center"><%=props.getProperty("topSpotters")%></h2>
+        <h2 class="section-header text-center">Top Spotters <span class="header-subtitle">(Past 90 days)</span></h2>
         
         <%
-        // Get top 12 spotters from last 30 days
+        // Get top 12 spotters from last 90 days
         try{
-            long startTime = System.currentTimeMillis() - Long.valueOf(1000L*60L*60L*24L*30L);
+            long startTime = System.currentTimeMillis() - Long.valueOf(1000L*60L*60L*24L*90L);
             operationStartTime = System.currentTimeMillis();
             Map<String,Integer> spotters = myShepherd.getTopUsersSubmittingEncountersSinceTimeInDescendingOrder(startTime);
             System.out.println("[PERF] index.jsp: getTopUsersSubmittingEncountersSinceTimeInDescendingOrder() took " + (System.currentTimeMillis() - operationStartTime) + " ms");
