@@ -234,11 +234,54 @@ public class RestClient {
         return new String(Base64.encodeBase64(mac.doFinal(messageToSendBytes)));
     }
 
+    /**
+     * Generates a time-based signature that includes a timestamp to prevent replay attacks.
+     * The signature is computed over the URL and current timestamp (in seconds since epoch).
+     * Returns format: "timestamp:signature" where signature is HMAC-SHA1 of (url + timestamp).
+     * 
+     * @param key The secret key for HMAC
+     * @param url The URL being requested
+     * @return String in format "timestamp:base64Signature"
+     * @throws NoSuchAlgorithmException
+     * @throws InvalidKeyException
+     */
+    private static String getTimeBasedSignature(String key, String url)
+    throws NoSuchAlgorithmException, InvalidKeyException {
+        long timestamp = System.currentTimeMillis() / 1000; // Current time in seconds
+        String messageToSign = url + ":" + timestamp;
+        
+        SecretKeySpec keyHmac = new SecretKeySpec(key.getBytes(), HMAC_SHA1_ALGORITHM);
+        Mac mac = Mac.getInstance(HMAC_SHA1_ALGORITHM);
+        
+        mac.init(keyHmac);
+        String signature = new String(Base64.encodeBase64(mac.doFinal(messageToSign.getBytes())));
+        
+        return timestamp + ":" + signature;
+    }
+
     public static String getAuthorizationHeader(String url)
     throws NoSuchAlgorithmException, InvalidKeyException {
         String appName = "IBEIS";
         String appSecret = "CB73808F-A6F6-094B-5FCD-385EBAFF8FC0";
+        
+        // For new_wbia architecture, fetch from environment variables
+        // Check if URL matches new_wbia patterns (staging/prod AWS URLs or local)
+        if (url != null && url.contains("us-east-1.amazonaws.com")) {
+            String envAppName = System.getenv("WBIA_APP_NAME");
+            String envAppSecret = System.getenv("WBIA_APP_SECRET");
+            
+            if (envAppName != null && !envAppName.isEmpty()) {
+                appName = envAppName;
+            }
+            if (envAppSecret != null && !envAppSecret.isEmpty()) {
+                appSecret = envAppSecret;
+            }
+            // Use time-based signature for AWS API Gateway requests to prevent replay attacks
+            String timeBasedSig = getTimeBasedSignature(appSecret, url);
+            return appName + ":" + timeBasedSig;
+        }
 
+        // Legacy signature for non-AWS endpoints (backward compatibility)
         return appName + ":" + getSignature(appSecret, url.getBytes());
     }
 

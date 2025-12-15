@@ -62,6 +62,8 @@ services:
       WILDBOOK_APP_URL: '${WILDBOOK_APP_URL}'
       WILDBOOK_BASE_DIR: '${WILDBOOK_BASE_DIR}'
       WBIA_ENV: '${WBIA_ENV}'
+      WBIA_APP_NAME: '${WBIA_APP_NAME}'
+      WBIA_APP_SECRET: '${WBIA_APP_SECRET}'
 
 
       # Admin user created on startup,
