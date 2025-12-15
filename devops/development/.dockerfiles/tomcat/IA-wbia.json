@@ -1153,5 +1153,39 @@
       }
     }
   },
+  "Myrmecophaga": {
+    "tridactyla": {
+      "_detect_conf": [
+        {
+          "labeler_algo": "densenet",
+          "labeler_model_tag": "giantanteater_v0",
+          "model_tag": "giantanteater_v0",
+          "model_tag_new": "giantanteater_v0",
+          "nms_aware": null,
+          "nms_thresh": 0.5,
+          "sensitivity": 0.48,
+          "architecture": "new_wbia"
+        }
+      ],
+      "giant_anteater": {
+        "_id_conf": [
+          {
+            "query_config_dict": {
+              "pipeline_root": "MiewId"
+            },
+            "description": "MiewID Matcher",
+            "default": true
+          },
+          {
+            "query_config_dict": {
+              "sv_on": true
+            },
+            "description": "HotSpotter pattern-matcher",
+            "default": false
+          }
+        ]
+      }
+    }
+  },
   "_default": "@Lycaon.pictus"
 }
