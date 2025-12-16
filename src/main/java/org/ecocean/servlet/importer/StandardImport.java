@@ -2021,6 +2021,8 @@ public class StandardImport extends HttpServlet {
         // }
         if (mark == null) { // new individual
             mark = new MarkedIndividual(enc);
+            mark.setSpecificEpithet(enc.getSpecificEpithet());
+            mark.setGenus(enc.getGenus());
             if (!mark.hasName(individualID)) mark.addName(individualID);
             if (committing) {
                 myShepherd.getPM().makePersistent(mark);
