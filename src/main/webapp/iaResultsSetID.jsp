@@ -201,7 +201,21 @@ if ((request.getParameter("taskId") != null) && (request.getParameter("number") 
 						indiv = myShepherd.getMarkedIndividual(individualID);
 					}
 					if (indiv==null) {
-						indiv = new MarkedIndividual(individualID, enc);
+						// Check if the individual ID already exists in the database by name
+						MarkedIndividual existingIndiv = null;
+						String genus = enc.getGenus();
+						String specificEpithet = enc.getSpecificEpithet();
+						// Check by name, filtering by genus and specificEpithet if available
+						existingIndiv = MarkedIndividual.withName(myShepherd, individualID, genus, specificEpithet);
+						
+						if (existingIndiv != null) {
+							// Use existing individual instead of creating a duplicate
+							indiv = existingIndiv;
+							System.out.println("iaResultsSetID: Found existing individual with name '" + individualID + "', using it instead of creating duplicate.");
+						} else {
+							// Individual doesn't exist, create new one
+							indiv = new MarkedIndividual(individualID, enc);
+						}
 					}
 
 

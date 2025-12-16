@@ -1741,6 +1741,9 @@ function switchIdMode(bid) {
     }
     resetIdButtons();
 }
+// Track if the current new ID is a duplicate
+var isDuplicateId = false;
+
 function resetIdButtons() {
 //console.info('resetIdButtons()');
     $('.id-action').hide();
@@ -1750,8 +1753,15 @@ function resetIdButtons() {
     var existId = $('#individualAddEncounterInput').val();
 //console.log('newId=%s / existId=%s', newId, existId);
     if (newId) {
-        $('#AddNewDisabled').hide();
-        $('#AddNew').show();
+        // Only enable the button if it's not a duplicate
+        if (!isDuplicateId) {
+            $('#AddNewDisabled').hide();
+            $('#AddNew').show();
+        } else {
+            // Keep the button disabled if it's a duplicate
+            $('#AddNewDisabled').show();
+            $('#AddNew').hide();
+        }
     } else if (existId) {
 //console.log('existId=%s', existId);
         if (lastIndivAutoData[existId]) {
@@ -1779,6 +1789,18 @@ function resetIdButtons() {
                         //$("#Add").show();
                         $("#setRemoveResultDiv").hide();
                       });
+                      
+                      // Clear duplicate ID error when user types in the new individual input field
+                      $("#individualNewAddEncounterInput").on('input keyup', function() {
+                        // Clear error when user types
+                        if (isDuplicateId) {
+                          isDuplicateId = false;
+                          $("#duplicateIdError").hide();
+                          $("#individualDiv").removeClass("has-error");
+                          $("#individualError").hide();
+                          resetIdButtons();
+                        }
+                      });
                     });
                     </script>
 
@@ -1804,6 +1826,7 @@ function resetIdButtons() {
 
                           <span class="form-control-feedback" id="individualCheck">&check;</span>
                           <span class="form-control-feedback" id="individualError">X</span><br>
+                          <div id="duplicateIdError" style="display:none; color: #a94442; font-size: 12px; margin-top: 5px;"></div>
                           <%
                           String locationIdPrefix = enc.getPrefixForLocationID();
                           int locationIdPrefixDigitPadding = enc.getPrefixDigitPaddingForLocationID();
@@ -1820,7 +1843,6 @@ function resetIdButtons() {
                           		$('individualAddEncounterInput').val('<%=nextID %>');
                           	}
 	                      </script>
-                          <p style="font-size: smaller;"><em>Next suggested new ID: <a onclick="$('#individualNewAddEncounterInput').val('<%=nextID %>');$('#matchType').val('Unmatched first encounter').change(); switchIdMode('#AddNew');"><%=nextID  %></a></em></p>
 
                         </div>
                         <div id="new-ind-button-section">
@@ -1890,6 +1912,9 @@ function checkIdDisplay() {
     $('#individualNewAddEncounterInput').on('keydown click', function() {
         switchIdMode('#AddNew');
         resetIdButtons();
+        // Clear duplicate error when user starts typing
+        isDuplicateId = false;
+        $('#duplicateIdError').hide();
         //$('#individualAddEncounterInput').val('');
         //$('#matchType').val('Unmatched first encounter');
     });
@@ -2074,9 +2099,26 @@ function checkIdDisplay() {
                         })
                         .fail(function(response) {
                         	$("#addSuccessDiv").hide();
-                          	$("#individualDiv").addClass("has-error");
-                          	$("#individualErrorDiv").html(response.responseText);
-                          	$("#individualError, #matchedByError, #individualErrorDiv, #individualResultsDiv").show();
+                          	var errorText = response.responseText || "";
+                          	
+                          	// If this is a duplicate ID error, show it only in the duplicate error div and disable the button
+                          	if (errorText.indexOf("already exists in the database") !== -1 || 
+                          	    errorText.indexOf("The ID entered already exists") !== -1) {
+                          	    // Show duplicate error message without the red X icon or general error styling
+                          	    $("#duplicateIdError").html(errorText).show();
+                          	    isDuplicateId = true;
+                          	    resetIdButtons();
+                          	    // Hide the general error elements
+                          	    $("#individualErrorDiv").hide();
+                          	    $("#individualError, #matchedByError").hide();
+                          	    $("#individualDiv").removeClass("has-error");
+                          	} else {
+                          	    // For other errors, show in the general error div with X icon
+                          	    $("#individualDiv").addClass("has-error");
+                          	    $("#individualErrorDiv").html(errorText);
+                          	    $("#individualError, #matchedByError, #individualErrorDiv, #individualResultsDiv").show();
+                          	    $("#duplicateIdError").hide();
+                          	}
 
                         });
                       });

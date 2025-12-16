@@ -347,6 +347,15 @@ public class EncounterImportExcelServlet extends HttpServlet {
                                 rowShepherd.beginDBTransaction();
         
                             }
+                            else {
+                                if (occ == null) {
+                                    System.out.println("[IMPORT][WARN] row=" + i + " occ is NULL -> Encounter will have no matching OCCURRENCE row:" + enc.getOccurrenceID() );
+                                }
+
+                                if (occ != null && rowShepherd.isOccurrence(occ)){
+                                     System.out.println("[IMPORT][WARN] row=" + i + " occ already exists:" + occ.getOccurrenceID() );
+                                }
+                            }
                             if (!rowShepherd.isMarkedIndividual(mark)) {
                                 rowShepherd.storeNewMarkedIndividual(mark);
                                 rowShepherd.beginDBTransaction();
@@ -480,14 +489,24 @@ public class EncounterImportExcelServlet extends HttpServlet {
     String dataSource = null;
 
     // try to load encounter by indID and occID, make a new one if it doesn't exist.
-    String individualID = getIndividualID(row, colIndexMap, verbose, missingColumns,
+    String individualName = getIndividualID(row, colIndexMap, verbose, missingColumns,
         unusedColumns, feedback);
     String occurrenceID = getOccurrenceID(row, colIndexMap, verbose, missingColumns,
         unusedColumns, feedback);
     Encounter enc = null;
 
-    if (Util.stringExists(individualID) && Util.stringExists(occurrenceID))
-        enc = myShepherd.getEncounterByIndividualAndOccurrence(individualID, occurrenceID);
+    String genus = getString(row, "Encounter.genus", colIndexMap, verbose, missingColumns,
+    unusedColumns, feedback);
+
+    String specificEpithet = getString(row, "Encounter.specificEpithet", colIndexMap, verbose,
+    missingColumns, unusedColumns, feedback);
+
+    MarkedIndividual mark = MarkedIndividual.withName(myShepherd, individualName, genus,
+                specificEpithet);
+
+
+    if (mark != null && Util.stringExists(mark.getIndividualID()) && Util.stringExists(occurrenceID))
+        enc = myShepherd.getEncounterByIndividualAndOccurrence(mark.getIndividualID(), occurrenceID);
     if (enc != null) enc.addAnnotations(annotations);
     else enc = new Encounter(annotations);
     if (occurrenceID != null) enc.setOccurrenceID(occurrenceID);
@@ -590,15 +609,11 @@ public class EncounterImportExcelServlet extends HttpServlet {
     String sex = getString(row, "Encounter.sex", colIndexMap, verbose, missingColumns,
         unusedColumns, feedback);
     if (sex != null) enc.setSex(sex);
-    String genus = getString(row, "Encounter.genus", colIndexMap, verbose, missingColumns,
-        unusedColumns, feedback);
     boolean hasGenus = false;
     if (genus != null && !genus.trim().equals("")) {
         hasGenus = true;
         enc.setGenus(genus.trim());
     }
-    String specificEpithet = getString(row, "Encounter.specificEpithet", colIndexMap, verbose,
-        missingColumns, unusedColumns, feedback);
     boolean hasSpecificEpithet = false;
     if (specificEpithet != null && !specificEpithet.trim().equals("")) {
         hasSpecificEpithet = true;
@@ -1966,6 +1981,8 @@ public class EncounterImportExcelServlet extends HttpServlet {
         // }
         if (mark == null) { // new individual
             mark = new MarkedIndividual(enc);
+            mark.setSpecificEpithet(enc.getSpecificEpithet());
+            mark.setGenus(enc.getGenus());
             if (!mark.hasName(individualID)) mark.addName(individualID);
             if (committing) {
                 myShepherd.getPM().makePersistent(mark);

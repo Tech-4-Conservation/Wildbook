@@ -71,6 +71,26 @@ public class IndividualAddEncounter extends HttpServlet {
                         System.out.println(
                             "IndividualAddEncounter: forceNew=true, attempting to make indiv '" +
                             indivID + "'.");
+                        
+                        // Check if the individual ID already exists in the database
+                        MarkedIndividual existingIndiv = null;
+                        String genus = enc2add.getGenus();
+                        String specificEpithet = enc2add.getSpecificEpithet();
+                        if (Util.isUUID(indivID)) {
+                            if (myShepherd.isMarkedIndividual(indivID)) {
+                                existingIndiv = myShepherd.getMarkedIndividual(indivID);
+                            }
+                        } else {
+                            // Check by name, filtering by genus and specificEpithet if available
+                            existingIndiv = MarkedIndividual.withName(myShepherd, indivID, genus, specificEpithet);
+                        }
+                        
+                        if (existingIndiv != null) {
+                            failureMessage = new StringBuilder(
+                                "The ID entered already exists in the database. To add this encounter to the existing ID, please use the Add to existing individual ID field below.");
+                            throw new RuntimeException(failureMessage.toString());
+                        }
+                        
                         try {
                             newIndy = true;
                             addToMe = new MarkedIndividual(indivID, enc2add);
